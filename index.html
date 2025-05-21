@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Converter & IP Finder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div class="container mx-auto p-4">
+    <h1 class="text-3xl font-bold text-center mb-6">Converter & IP Finder</h1>
+
+    <!-- Image Converter -->
+    <div class="mb-8 p-4 bg-white rounded shadow">
+      <h2 class="text-xl font-semibold mb-2">JPEG to PNG Converter</h2>
+      <input type="file" id="imageInput" accept="image/jpeg" class="mb-2">
+      <button onclick="convertImage()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Convert to PNG</button>
+      <a id="downloadLink" class="hidden mt-2 text-blue-500">Download PNG</a>
+      <canvas id="canvas" class="hidden"></canvas>
+    </div>
+
+    <!-- Unit Converter -->
+    <div class="mb-8 p-4 bg-white rounded shadow">
+      <h2 class="text-xl font-semibold mb-2">Unit Converter (Meters to Millimeters)</h2>
+      <input type="number" id="metersInput" placeholder="Enter meters" class="border p-2 mr-2">
+      <button onclick="convertUnits()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Convert</button>
+      <p id="unitResult" class="mt-2"></p>
+    </div>
+
+    <!-- IP Address Finder -->
+    <div class="mb-8 p-4 bg-white rounded shadow">
+      <h2 class="text-xl font-semibold mb-2">Find My IP Address</h2>
+      <button onclick="getIP()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Get IP</button>
+      <p id="ipResult" class="mt-2"></p>
+    </div>
+  </div>
+
+  <script>
+    // Image Converter
+    function convertImage() {
+      const input = document.getElementById('imageInput');
+      const canvas = document.getElementById('canvas');
+      const downloadLink = document.getElementById('downloadLink');
+      const file = input.files[0];
+      if (!file) {
+        alert('Please select a JPEG file.');
+        return;
+      }
+
+      const img = new Image();
+      img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        downloadLink.href = canvas.toDataURL('image/png');
+        downloadLink.download = 'converted.png';
+        downloadLink.classList.remove('hidden');
+        downloadLink.textContent = 'Download PNG';
+      };
+      img.src = URL.createObjectURL(file);
+    }
+
+    // Unit Converter
+    function convertUnits() {
+      const meters = parseFloat(document.getElementById('metersInput').value);
+      const result = document.getElementById('unitResult');
+      if (isNaN(meters)) {
+        result.textContent = 'Please enter a valid number.';
+        return;
+      }
+      const millimeters = meters * 1000;
+      result.textContent = `${meters} meters = ${millimeters} millimeters`;
+    }
+
+    // IP Address Finder
+    async function getIP() {
+      const result = document.getElementById('ipResult');
+      result.textContent = 'Fetching...';
+      try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        result.textContent = `IP: ${data.ip}, Location: ${data.city}, ${data.country_name}`;
+      } catch (error) {
+        result.textContent = 'Error fetching IP address.';
+      }
+    }
+  </script>
+</body>
+</html>
